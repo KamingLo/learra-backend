@@ -4,9 +4,8 @@
   "description": "This is served as backend for learra",
   "main": "app.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "build": "tsc",
-    "start": "node dist/app.js"
+    "dev": "nodemon app.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
