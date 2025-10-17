@@ -1,0 +1,32 @@
+{
+  "name": "learra-backend",
+  "version": "1.0.0",
+  "description": "This is served as backend for learra",
+  "main": "app.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaminglo/learra-backend.git"
+  },
+  "author": "Kaming",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaminglo/learra-backend/issues"
+  },
+  "homepage": "https://github.com/kaminglo/learra-backend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.37.0",
+    "nodemon": "^3.1.10"
+  }
+}
