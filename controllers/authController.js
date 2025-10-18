@@ -50,8 +50,6 @@ export const forgotPassword = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    console.log(email);
-
     await transporter.sendMail({
       from: "lokaming86@gmail.com",
       to: email,
@@ -80,7 +78,6 @@ export const verifyCode = async (req, res) => {
     const resetToken = new mongoose.Types.ObjectId().toString();
     record.resetToken = resetToken;
     await record.save();
-    console.log(record);
 
     return res.json({ message: "Code verified", record});
   } catch (err) {

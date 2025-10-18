@@ -4,7 +4,7 @@ export const passwordTemplate = ({ userName, code }) => `
       <p style="font-size: 28px; font-weight: bold; margin: 0;">Learra</p>
     </div>
 
-    <div style="text-align: center; margin:0px 1rem;">
+    <div style="text-align: center;">
         <p>Hi ${userName},</p>
         <p style="text-align: center;">Terima kasih telah menggunakan Learra! Untuk melanjutkan proses keamanan akun kamu, kami mengirimkan kode verifikasi di bawah ini. Kode ini bersifat rahasia dan hanya berlaku untuk sementara waktu.</p>
         <p style="text-align: center;">Jika kamu tidak meminta kode ini, kemungkinan ada orang lain mencoba mengakses akunmu. Dalam kasus tersebut, tidak perlu melakukan apa-apa akunmu tetap aman.</p>
