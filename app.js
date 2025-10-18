@@ -1,18 +1,14 @@
 import express from "express";
-import cors from "cors";
+import bodyParser from "body-parser";
+import { connectDB } from "./config/db.js";
+import router from "./router.js";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+app.use(bodyParser.json());
 
-// Middleware
-app.use(cors());
+connectDB();
 
-// Simple route
-app.get("/", (req, res) => {
-  res.send("Server is live! 🚀");
-});
+app.use("/", router);
 
-// Jalankan server
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const PORT = 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
