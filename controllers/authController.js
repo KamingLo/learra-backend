@@ -50,17 +50,17 @@ export const forgotPassword = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    // await transporter.sendMail({
-    //   from: process.env.USER_BREVO,
-    //   to: email,
-    //   subject: "Password Reset Code",
-    //   html: passwordTemplate({
-    //     userName: user.name,
-    //     code: code,
-    //   }),
-    // }); //hanya uncomment kalau udah yakin dan butuh email
+    console.log(email);
 
-    console.log(code);
+    await transporter.sendMail({
+      from: "lokaming86@gmail.com",
+      to: email,
+      subject: "Password Reset Code",
+      html: passwordTemplate({
+        userName: user.name,
+        code: code,
+      }),
+    });
 
     return res.json({ message: "Verification code sent to email." });
   } catch (err) {
