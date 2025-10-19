@@ -5,7 +5,7 @@ import { User } from "../models/userModel.js";
 // REGISTER / CREATE USER
 export const createUser = async (req, res) => {
   try {
-    const { name, email, password, confirmPassword, ...rest } = req.body;
+    const { name, email, password, confirmPassword, nomorIdentitas, ...rest } = req.body;
 
     if (!name || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: "Semua field wajib diisi" });
@@ -15,10 +15,15 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ message: "Password dan konfirmasi tidak cocok" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+        $or: [{ email }, { nomorIdentitas }]
+    });
+
     if (existingUser) {
-      return res.status(400).json({ message: "Email sudah digunakan" });
+        if (existingUser.email === email) return res.status(400).json({ message: "Email sudah digunakan" });
+        if (existingUser.nomorIdentitas === nomorIdentitas) return res.status(400).json({ message: "Nik sudah pernah digunakan" });
     }
+
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -26,6 +31,7 @@ export const createUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      nomorIdentitas,
       ...rest,
     });
 
@@ -34,7 +40,8 @@ export const createUser = async (req, res) => {
     const userWithoutPassword = user.toObject();
     delete userWithoutPassword.password;
 
-    res.status(201).json(userWithoutPassword);
+    console.log("berhasil disimpan");
+    res.status(201).json({message: "User berhasil dibuat."});
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

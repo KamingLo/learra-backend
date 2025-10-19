@@ -1,4 +1,5 @@
 import express from "express";
+import { apiKeyAuth } from "./config/middleware.js";
 import {
   createUser,
   getUsers,
@@ -15,7 +16,7 @@ import {
 } from "./controllers/authController.js";
 
 const router = express.Router();
-
+router.use(apiKeyAuth);
 
 router.get("/users", getUsers); //Buat ambil semua data user
 router.get("/users/:id", getUserById); //ambil data user sesuai id
