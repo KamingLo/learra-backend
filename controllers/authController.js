@@ -3,6 +3,7 @@ import { PasswordReset } from "../models/passwordReset.js";
 import { passwordTemplate } from "../email/emailTemplate.js"; 
 import transporter from "../config/mail.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
 export const loginUser = async (req, res) => {
@@ -23,13 +24,22 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Password salah" });
     }
 
-    const userWithoutPassword = user.toObject();
-    delete userWithoutPassword.password;
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    res.json({
+    return res.status(200).json({
       message: "Login berhasil",
-      user: userWithoutPassword,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+      },
     });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

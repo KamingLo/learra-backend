@@ -14,3 +14,8 @@ export const connectDB = async () => {
     process.exit(1);
   }
 };
+
+export const attachDb = (req, res, next) => {
+  req.db = { User };
+  next();
+};

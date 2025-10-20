@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 export const apiKeyAuth = (req, res, next) => {
   const apiKey = req.header('api-key');
 

@@ -24,7 +24,6 @@ export const createUser = async (req, res) => {
         if (existingUser.nomorIdentitas === nomorIdentitas) return res.status(400).json({ message: "Nik sudah pernah digunakan" });
     }
 
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
@@ -48,13 +47,13 @@ export const createUser = async (req, res) => {
 };
 
 export const getUsers = async (req, res) => {
-  const users = await User.find().select("-password");
+  const users = await User.find().select("-password -nomorIdentitas");
   res.json(users);
 };
 
 export const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const user = await User.findById(req.params.id).select("-password -nomorIdentitas");
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (err) {
