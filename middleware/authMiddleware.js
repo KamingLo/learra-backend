@@ -38,6 +38,3 @@ export const checkOwnership = (modelName) => {
     }
   };
 };
-
-
-
