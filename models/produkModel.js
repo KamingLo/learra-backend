@@ -8,16 +8,18 @@ const produkSchema = new mongoose.Schema({
   },
   description: {
     type: String,
+    required: true,
     trim: true,
   },
-  premium: {
+  premiDasar:{
     type: Number,
     required: true,
     min: 0,
   },
-  coverage: {
-    type: String, // misal: "Kesehatan", "Kendaraan", dll
+  tipe: {
+    type: String,
     required: true,
+    enum: ["jiwa", "kesehatan", "pendidikan"],
   },
 }, {timestamps: true}
 );

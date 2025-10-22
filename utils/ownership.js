@@ -10,11 +10,11 @@ export const getOwnerIdFromResource = async (modelName, id) => {
     }
     case "Polis": {
       const polis = await Polis.findById(id);
-      return polis?.user;
+      return polis?.user._id;
     }
     case "Pembayaran": {
       const pembayaran = await Pembayaran.findById(id).populate("polis", "user");
-      return pembayaran?.polis?.user;
+      return pembayaran?.polis?.user._id;
     }
     default:
       throw new Error("Model tidak dikenali untuk ownership");

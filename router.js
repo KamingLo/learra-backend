@@ -1,6 +1,6 @@
 import express from "express";
 import { apiKeyAuth} from "./middleware/apiMiddleware.js";
-import { verifyToken, checkOwnership} from "./middleware/authMiddleware.js";
+import { verifyToken, checkOwnership, checkAdmin} from "./middleware/authMiddleware.js";
 import jwt from "jsonwebtoken";
 
 import {
@@ -18,6 +18,14 @@ import {
     resetPassword,
 } from "./controllers/authController.js";
 
+
+import {
+    createProduk,
+    getAllProduk,
+    getProdukById,
+    updateProduk,
+    deleteProduk,
+} from "./controllers/produkController.js";
 const router = express.Router();
 
 router.use(apiKeyAuth);
@@ -33,14 +41,10 @@ router.post("/auth/forgot-password", forgotPassword); //buat ngasih kode
 router.post("/auth/verify-code", verifyCode);
 router.post("/auth/reset-password", resetPassword);
 
-router.get("/check-token", (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ valid: true, decoded });
-  } catch (err) {
-    res.json({ valid: false, error: err.message });
-  }
-});
+router.post("/produk", verifyToken, checkAdmin(), createProduk);
+router.get("/produk", verifyToken, checkAdmin(), getAllProduk);
+router.get("/produk/:id", verifyToken, checkAdmin(), getProdukById);
+router.put("/produk", verifyToken, checkAdmin(), updateProduk);
+router.get("/produk", verifyToken, checkAdmin(), deleteProduk);
 
 export default router;

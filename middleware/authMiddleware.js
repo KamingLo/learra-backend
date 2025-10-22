@@ -38,3 +38,17 @@ export const checkOwnership = (modelName) => {
     }
   };
 };
+
+export const checkAdmin = () => {
+  return async (req, res, next) => {
+    try {
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Akses ditolak, hanya admin yang diizinkan" });
+      }
+
+      next();
+    } catch (err) {
+      res.status(500).json({ message: "Gagal memeriksa peran admin", error: err.message });
+    }
+  };
+};

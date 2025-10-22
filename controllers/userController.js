@@ -39,7 +39,6 @@ export const createUser = async (req, res) => {
     const userWithoutPassword = user.toObject();
     delete userWithoutPassword.password;
 
-    console.log("berhasil disimpan");
     res.status(201).json({message: "User berhasil dibuat."});
   } catch (err) {
     res.status(400).json({ error: err.message });

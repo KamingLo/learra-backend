@@ -16,18 +16,17 @@ const polisSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
-  startDate: {
-    type: Date,
-    required: true,
-  },
-  endDate: {
-    type: Date,
-    required: true,
+  premium:{
+    type: Number,
+    required:true,
   },
   status: {
     type: String,
-    enum: ["aktif", "kedaluwarsa", "dibatalkan"],
+    enum: ["aktif", "kedaluwarsa"],
     default: "aktif",
+  },
+  detail:{
+    
   },
 }, {timestamps: true}
 );
