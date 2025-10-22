@@ -1,7 +1,6 @@
 import express from "express";
 import { apiKeyAuth} from "./middleware/apiMiddleware.js";
 import { verifyToken, checkOwnership, checkAdmin} from "./middleware/authMiddleware.js";
-import jwt from "jsonwebtoken";
 
 import {
   createUser,
@@ -26,6 +25,24 @@ import {
     updateProduk,
     deleteProduk,
 } from "./controllers/produkController.js";
+
+import {
+    createPolis,
+    getAllPolis,
+    getPolisById,
+    updatePolis,
+    deletePolis,
+    getPolisUser,
+} from "./controllers/polisController.js"
+
+import {
+  createPembayaran,
+  scanPembayaran,
+  getAllPembayaran,
+  deletePembayaran,
+  getPembayaranUser,
+} from "./controllers/pembayaranController.js";
+
 const router = express.Router();
 
 router.use(apiKeyAuth);
@@ -46,5 +63,17 @@ router.get("/produk", verifyToken, checkAdmin(), getAllProduk);
 router.get("/produk/:id", verifyToken, checkAdmin(), getProdukById);
 router.put("/produk", verifyToken, checkAdmin(), updateProduk);
 router.get("/produk", verifyToken, checkAdmin(), deleteProduk);
+
+router.post("/polis", verifyToken, createPolis);
+router.get("/polis", verifyToken, checkAdmin(), getAllPolis);
+router.get("/polis/:id", verifyToken, checkOwnership("Polis"), getPolisById);
+router.put("/polis/:id", verifyToken, checkOwnership("Polis"), updatePolis);
+router.delete("/polis/:id", verifyToken, checkOwnership("Polis"), deletePolis);
+
+router.post("/payment", verifyToken, createPembayaran);
+router.get("/payment", verifyToken, checkAdmin(), getAllPembayaran);
+router.get("/payment/user", verifyToken, checkOwnership("Pembayaran"), getPembayaranUser);
+router.get("/payment/:id", verifyToken, checkOwnership("Pembayaran"), scanPembayaran);
+router.delete("/payment/:id", verifyToken, deletePembayaran);
 
 export default router;

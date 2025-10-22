@@ -16,19 +16,53 @@ const polisSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
-  premium:{
+  premium: {
     type: Number,
-    required:true,
+    required: true,
+  },
+  startDate: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
+  endingDate: {
+    type: Date,
+    required: true,
   },
   status: {
     type: String,
-    enum: ["aktif", "kedaluwarsa"],
-    default: "aktif",
+    enum: ["inaktif", "aktif", "dibatalkan"],
+    default: "inaktif",
   },
-  detail:{
-    
+  statusReason: {
+    type: String, // alasan admin jika dibatalkan, optional
   },
-}, {timestamps: true}
-);
+
+  detail: {
+    kesehatan: {
+      merokok: { type: Boolean },
+      hipertensi: { type: Boolean },
+      diabetes: { type: Boolean },
+    },
+    jiwa: {
+      jumlahTanggungan: { type: Number },
+      statusPernikahan: { type: String },
+    },
+    kendaraan: {
+      merek: { type: String },
+      jenisKendaraan: { type: String },
+      nomorKendaraan: { type: String },
+      hargaKendaraan: { type: Number },
+      nomorRangka: { type: String },
+      nomorMesin: { type: String },
+      namaPemilik: { type: String },
+      umurKendaraan: { type: Number },
+    },
+  },
+}, { timestamps: true });
+
+// Index buat query cepat berdasarkan user/product
+polisSchema.index({ userId: 1 });
+polisSchema.index({ productId: 1 });
 
 export const Polis = mongoose.model("Polis", polisSchema);

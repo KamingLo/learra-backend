@@ -13,7 +13,6 @@ const pembayaranSchema = new mongoose.Schema({
   },
   method: {
     type: String,
-    enum: ["transfer_bank", "ewallet", "kartu_kredit"],
     required: true,
   },
   status: {
