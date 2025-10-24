@@ -35,7 +35,7 @@ const polisSchema = new mongoose.Schema({
     default: "inaktif",
   },
   statusReason: {
-    type: String, // alasan admin jika dibatalkan, optional
+    type: String,
   },
 
   detail: {
@@ -60,9 +60,5 @@ const polisSchema = new mongoose.Schema({
     },
   },
 }, { timestamps: true });
-
-// Index buat query cepat berdasarkan user/product
-polisSchema.index({ userId: 1 });
-polisSchema.index({ productId: 1 });
 
 export const Polis = mongoose.model("Polis", polisSchema);

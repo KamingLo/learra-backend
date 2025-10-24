@@ -98,14 +98,40 @@ export const createPolis = async (req, res) => {
 
 export const getAllPolis = async (req, res) => {
   try {
+    const { userName } = req.query;
+
+    let polis;
+
+    if (userName) {
+      polis = await Polis.find()
+        .populate({
+          path: "userId",
+          select: "name email",
+          match: { name: { $regex: userName, $options: "i" } },
+        })
+        .populate("productId", "name tipe");
+
+      polis = polis.filter((p) => p.userId !== null);
+
+      if (polis.length === 0) {
+        return res.status(404).json({ message: "Tidak ada polis dengan nama user tersebut." });
+      }
+
+      return res.status(200).json(polis);
+    }
+
     const data = await Polis.find()
       .populate("userId", "name email")
       .populate("productId", "name tipe");
-    res.json(data);
+
+    res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error fetching polis:", err.message);
+    res.status(500).json({ message: "Terjadi kesalahan saat mengambil data polis." });
   }
 };
+
+
 
 export const getPolisById = async (req, res) => {
   try {
@@ -120,14 +146,12 @@ export const getPolisById = async (req, res) => {
   }
 };
 
-
 export const getPolisUser = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Ambil semua polis milik user ini
     const polis = await Polis.find({ userId })
-      .populate("productId") // biar tahu nama produk, tipe, premi dasar, dll.
+      .populate("productId")
       .sort({ createdAt: -1 });
 
     if (!polis || polis.length === 0) {

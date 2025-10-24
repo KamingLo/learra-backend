@@ -1,7 +1,6 @@
-import { Pembayaran } from "../models/Pembayaran.js";
+import { Pembayaran } from "../models/pembayaranModel.js";
 import QRCode from "qrcode";
 
-// Create pembayaran + generate QR
 export const createPembayaran = async (req, res) => {
   try {
     const { policyId, amount, method } = req.body;
@@ -57,14 +56,49 @@ export const scanPembayaran = async (req, res) => {
 
 export const getAllPembayaran = async (req, res) => {
   try {
-    const data = await Pembayaran.find().populate("policyId");
+    const { userName } = req.query;
+
+    let pembayaran;
+
+    if (userName) {
+      pembayaran = await Pembayaran.find()
+        .populate({
+          path: "policyId",
+          populate: {
+            path: "userId",
+            select: "name email",
+            match: { name: { $regex: userName, $options: "i" } }, // filter nama user
+          },
+        });
+
+      pembayaran = pembayaran.filter(
+        (p) => p.policyId && p.policyId.userId !== null
+      );
+
+      if (pembayaran.length === 0) {
+        return res.status(404).json({
+          message: "Tidak ada pembayaran dengan nama user tersebut.",
+        });
+      }
+
+      return res.status(200).json(pembayaran);
+    }
+
+    const data = await Pembayaran.find().populate({
+      path: "policyId",
+      populate: { path: "userId", select: "name email" },
+    });
+
     res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching pembayaran:", error.message);
+    res
+      .status(500)
+      .json({ message: "Terjadi kesalahan saat mengambil data pembayaran." });
   }
 };
 
-export const getPembayaranUser = async (req, res) => {
+export const getPembayaranByUser = async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -86,7 +120,6 @@ export const getPembayaranUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 export const deletePembayaran = async (req, res) => {
   try {

@@ -1,8 +1,6 @@
 import bcrypt from "bcrypt";
-import crypto from "crypto";
 import { User } from "../models/userModel.js";
 
-// REGISTER / CREATE USER
 export const createUser = async (req, res) => {
   try {
     const { name, email, password, confirmPassword, nomorIdentitas, ...rest } = req.body;
@@ -46,15 +44,32 @@ export const createUser = async (req, res) => {
 };
 
 export const getUsers = async (req, res) => {
-  const users = await User.find().select("-password -nomorIdentitas");
-  res.json(users);
+  try {
+    const { search } = req.query;
+
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { nama: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const users = await User.find(query).select("-password -nomorIdentitas");
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    res.status(500).json({ message: "Terjadi kesalahan saat mengambil data pengguna." });
+  }
 };
 
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password -nomorIdentitas");
     if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -70,7 +85,7 @@ export const updateUser = async (req, res) => {
     }).select("-password");
 
     if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
+    res.status(201).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -80,7 +95,7 @@ export const deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
-    res.json({ message: "User deleted" });
+    res.status(200).json({ message: "User deleted" });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

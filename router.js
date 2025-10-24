@@ -17,7 +17,6 @@ import {
     resetPassword,
 } from "./controllers/authController.js";
 
-
 import {
     createProduk,
     getAllProduk,
@@ -30,18 +29,27 @@ import {
     createPolis,
     getAllPolis,
     getPolisById,
+    getPolisByUser,
     updatePolis,
     deletePolis,
-    getPolisUser,
 } from "./controllers/polisController.js"
 
 import {
   createPembayaran,
   scanPembayaran,
   getAllPembayaran,
+  getPembayaranByUser,
   deletePembayaran,
-  getPembayaranUser,
 } from "./controllers/pembayaranController.js";
+
+import {
+  createKlaim,
+  getAllKlaim,
+  getKlaimById,
+  getKlaimByUser,
+  updateKlaim,
+  deleteKlaim
+} from "./controllers/klaimController.js";
 
 const router = express.Router();
 
@@ -65,6 +73,7 @@ router.put("/produk", verifyToken, checkAdmin(), updateProduk);
 router.get("/produk", verifyToken, checkAdmin(), deleteProduk);
 
 router.post("/polis", verifyToken, createPolis);
+router.get("/polis/user", verifyToken, checkOwnership("Polis"), getPolisByUser);
 router.get("/polis", verifyToken, checkAdmin(), getAllPolis);
 router.get("/polis/:id", verifyToken, checkOwnership("Polis"), getPolisById);
 router.put("/polis/:id", verifyToken, checkOwnership("Polis"), updatePolis);
@@ -72,8 +81,15 @@ router.delete("/polis/:id", verifyToken, checkOwnership("Polis"), deletePolis);
 
 router.post("/payment", verifyToken, createPembayaran);
 router.get("/payment", verifyToken, checkAdmin(), getAllPembayaran);
-router.get("/payment/user", verifyToken, checkOwnership("Pembayaran"), getPembayaranUser);
+router.get("/payment/user", verifyToken, checkOwnership("Pembayaran"), getPembayaranByUser);
 router.get("/payment/:id", verifyToken, checkOwnership("Pembayaran"), scanPembayaran);
 router.delete("/payment/:id", verifyToken, deletePembayaran);
+
+router.post("/klaim", verifyToken, checkOwnership("Klaim"), createKlaim);
+router.get("/klaim", verifyToken, checkAdmin("Klaim"), getAllKlaim);
+router.get("/klaim/:id", verifyToken, checkOwnership("Klaim"), getKlaimById);
+router.get("/klaim/user", verifyToken, checkAdmin(), getKlaimByUser);
+router.put("/klaim/:id", verifyToken, checkAdmin(), updateKlaim);
+router.delete("/klaim/:id", verifyToken, checkOwnership("Polis"), deleteKlaim);
 
 export default router;

@@ -12,13 +12,30 @@ export const createProduk = async (req, res) => {
 
 export const getAllProduk = async (req, res) => {
   try {
-    const produk = await Produk.find();
-    res.json(produk);
+    const { name, tipe } = req.query;
+
+    const query = {};
+
+    if (name) {
+      query.namaProduk = { $regex: name, $options: "i" };
+    }
+
+    if (tipe) {
+      query.tipe = { $regex: tipe, $options: "i" };
+    }
+
+    const produk = await Produk.find(query);
+
+    if (produk.length === 0) {
+      return res.status(404).json({ message: "Produk tidak ditemukan." });
+    }
+
+    res.status(200).json(produk);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching produk:", error.message);
+    res.status(500).json({ message: "Terjadi kesalahan saat mengambil data produk." });
   }
 };
-
 
 export const getProdukById = async (req, res) => {
   try {
@@ -26,7 +43,7 @@ export const getProdukById = async (req, res) => {
     if (!produk) {
       return res.status(404).json({ message: "Produk tidak ditemukan" });
     }
-    res.json(produk);
+    res.status(200).json(produk);
   } catch (error) {
     res.status(400).json({ message: "ID tidak valid" });
   }
@@ -41,7 +58,7 @@ export const updateProduk = async (req, res) => {
     if (!updated) {
       return res.status(404).json({ message: "Produk tidak ditemukan" });
     }
-    res.json(updated);
+    res.status(201).json(updated);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -53,7 +70,7 @@ export const deleteProduk = async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: "Produk tidak ditemukan" });
     }
-    res.json({ message: "Produk berhasil dihapus" });
+    res.status(200).json({ message: "Produk berhasil dihapus" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
