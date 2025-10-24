@@ -146,7 +146,7 @@ export const getPolisById = async (req, res) => {
   }
 };
 
-export const getPolisUser = async (req, res) => {
+export const getPolisByUser = async (req, res) => {
   try {
     const userId = req.user._id;
 
