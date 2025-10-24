@@ -29,6 +29,46 @@ export const createPembayaran = async (req, res) => {
   }
 };
 
+export const perpanjangPolis = async (req, res) => {
+  try {
+    const { policyId, amount, method } = req.body;
+
+    const polis = await Polis.findById(policyId);
+    if (!polis) {
+      return res.status(404).json({ message: "Polis tidak ditemukan" });
+    }
+
+    const pembayaran = await Pembayaran.create({
+      policyId,
+      amount,
+      method,
+      type: "perpanjangan",
+    });
+
+    const qrUrl = `${req.protocol}://${req.get("host")}/api/pembayaran/scan/${pembayaran._id}`;
+    const qrImage = await QRCode.toDataURL(qrUrl, {
+      errorCorrectionLevel: "H",
+      width: 300,
+    });
+
+    const currentEnding = new Date(polis.endingDate);
+    const newEnding = new Date(currentEnding.setMonth(currentEnding.getMonth() + 1));
+    polis.endingDate = newEnding;
+
+    await polis.save();
+
+    res.status(200).json({
+      message: "Polis berhasil diperpanjang selama 1 bulan",
+      pembayaran,
+      qrUrl,
+      qrImage,
+      newEndingDate: polis.endingDate,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const scanPembayaran = async (req, res) => {
   try {
     const { id } = req.params;
