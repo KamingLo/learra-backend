@@ -49,7 +49,7 @@ export const getAllKlaim = async (req, res) => {
       // filter hasil yang user-nya tidak cocok (karena match gagal → userId = null)
       klaim = klaim.filter(
         (k) => k.polisId && k.polisId.userId !== null
-      );
+      ).slice(0, 20);
 
       if (klaim.length === 0) {
         return res.status(404).json({
@@ -60,7 +60,6 @@ export const getAllKlaim = async (req, res) => {
       return res.status(200).json(klaim);
     }
 
-    // jika tidak ada filter userName, tampilkan semua
     const data = await Klaim.find().populate({
       path: "polisId",
       populate: { path: "userId", select: "name email" },

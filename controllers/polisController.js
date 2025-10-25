@@ -111,7 +111,7 @@ export const getAllPolis = async (req, res) => {
         })
         .populate("productId", "name tipe");
 
-      polis = polis.filter((p) => p.userId !== null);
+      polis = polis.filter((p) => p.userId !== null).slice(0, 20);
 
       if (polis.length === 0) {
         return res.status(404).json({ message: "Tidak ada polis dengan nama user tersebut." });
@@ -130,8 +130,6 @@ export const getAllPolis = async (req, res) => {
     res.status(500).json({ message: "Terjadi kesalahan saat mengambil data polis." });
   }
 };
-
-
 
 export const getPolisById = async (req, res) => {
   try {

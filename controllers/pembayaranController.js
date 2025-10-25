@@ -113,7 +113,7 @@ export const getAllPembayaran = async (req, res) => {
 
       pembayaran = pembayaran.filter(
         (p) => p.policyId && p.policyId.userId !== null
-      );
+      ).slice(0, 20);
 
       if (pembayaran.length === 0) {
         return res.status(404).json({

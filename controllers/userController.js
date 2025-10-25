@@ -56,7 +56,7 @@ export const getUsers = async (req, res) => {
       ];
     }
 
-    const users = await User.find(query).select("-password -nomorIdentitas");
+    const users = await User.find(query).select("-password -nomorIdentitas").limit(20);
 
     res.status(200).json(users);
   } catch (error) {

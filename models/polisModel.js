@@ -34,10 +34,6 @@ const polisSchema = new mongoose.Schema({
     enum: ["inaktif", "aktif", "dibatalkan"],
     default: "inaktif",
   },
-  statusReason: {
-    type: String,
-  },
-
   detail: {
     kesehatan: {
       merokok: { type: Boolean },
@@ -56,7 +52,7 @@ const polisSchema = new mongoose.Schema({
       nomorRangka: { type: String },
       nomorMesin: { type: String },
       namaPemilik: { type: String },
-      umurKendaraan: { type: Number },
+      umurKendaraan: { type: Date },
     },
   },
 }, { timestamps: true });
