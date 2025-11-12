@@ -81,7 +81,7 @@ router.put("/polis/:id", verifyToken, checkAdmin(), updatePolis);
 router.delete("/polis/:id", verifyToken, checkOwnership("Polis"), deletePolis);
 
 router.post("/payment", verifyToken, createPembayaran);
-router.post("payment/perpanjangan", verifyTokens ,perpanjangPolis);
+router.post("payment/perpanjangan", verifyToken ,perpanjangPolis);
 router.get("/payment", verifyToken, checkAdmin(), getAllPembayaran);
 router.get("/payment/user", verifyToken, getPembayaranByUser);
 router.get("/payment/:id", verifyToken, checkOwnership("Pembayaran"), scanPembayaran);
