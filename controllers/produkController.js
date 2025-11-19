@@ -12,22 +12,24 @@ export const createProduk = async (req, res) => {
 
 export const getAllProduk = async (req, res) => {
   try {
-    const { name, tipe } = req.query;
+    // Menggunakan 'search' untuk mencari di Nama Produk ATAU Tipe Produk
+    const { search } = req.query;
 
     const query = {};
 
-    if (name) {
-      query.namaProduk = { $regex: name, $options: "i" };
-    }
-
-    if (tipe) {
-      query.tipe = { $regex: tipe, $options: "i" };
+    if (search) {
+      query.$or = [
+        { namaProduk: { $regex: search, $options: "i" } },
+        { tipe: { $regex: search, $options: "i" } }
+      ];
     }
 
     const produk = await Produk.find(query);
 
     if (produk.length === 0) {
-      return res.status(404).json({ message: "Produk tidak ditemukan." });
+      // Kita return 200 dengan array kosong agar frontend tidak error, atau 404 jika preferensi logic Anda begitu.
+      // Disini saya kembalikan array kosong status 200 agar lebih umum.
+      return res.status(200).json([]); 
     }
 
     res.status(200).json(produk);

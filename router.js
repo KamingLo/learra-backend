@@ -36,7 +36,7 @@ import {
 
 import {
   createPembayaran,
-  scanPembayaran,
+  confirmPembayaran,
   getAllPembayaran,
   getPembayaranByUser,
   deletePembayaran,
@@ -54,43 +54,53 @@ import {
 
 const router = express.Router();
 
+// Middleware Global untuk API Key
 router.use(apiKeyAuth);
 
-router.get("/users", getUsers); //Buat ambil semua data user   
-router.get("/users/:id", getUserById); //ambil data user sesuai id
-router.put("/users/:id", verifyToken, checkOwnership("User"), updateUser); //ubah data sesuai id dari mongoDB (hanya owner dan admin yang bisa akses)
-router.delete("/users/:id", verifyToken, checkOwnership("User"), deleteUser); //hapus data sesuai id dari mongoDB (hanya owner dan admin yang bisa akses)
+// --- USERS ---
+router.get("/users", getUsers); // Mendukung ?search=
+router.get("/users/:id", checkAdmin(),getUserById);
+router.put("/users/:id", verifyToken, checkOwnership("User"), updateUser);
+router.delete("/users/:id", verifyToken, checkOwnership("User"), deleteUser);
 
-router.post("/auth/register", createUser); //bikin data user baru
-router.post("/auth/login", loginUser); //login user, ada yang di return yaitu jwt
-router.post("/auth/forgot-password", forgotPassword); //buat ngasih kode
+// --- AUTH ---
+router.post("/auth/register", createUser);
+router.post("/auth/login", loginUser);
+router.post("/auth/forgot-password", forgotPassword);
 router.post("/auth/verify-code", verifyCode);
 router.post("/auth/reset-password", resetPassword);
 
+// --- PRODUK ---
 router.post("/produk", verifyToken, checkAdmin(), createProduk);
-router.get("/produk", getAllProduk);
+router.get("/produk", getAllProduk); // Mendukung ?search=
 router.get("/produk/:id", getProdukById);
-router.put("/produk", verifyToken, checkAdmin(), updateProduk);
-router.get("/produk", verifyToken, checkAdmin(), deleteProduk);
+router.put("/produk/:id", verifyToken, checkAdmin(), updateProduk); // Note: pastikan ada :id
+router.delete("/produk/:id", verifyToken, checkAdmin(), deleteProduk); // Note: pastikan ada :id
 
+// --- POLIS ---
 router.post("/polis", verifyToken, createPolis);
-router.get("/polis/user", verifyToken, checkOwnership("Polis"), getPolisByUser);
-router.get("/polis", verifyToken, checkAdmin(), getAllPolis);
+router.get("/polis/user", verifyToken, getPolisByUser);
+router.get("/polis", verifyToken, checkAdmin(), getAllPolis); // Mendukung ?search=
 router.get("/polis/:id", verifyToken, checkOwnership("Polis"), getPolisById);
 router.put("/polis/:id", verifyToken, checkAdmin(), updatePolis);
 router.delete("/polis/:id", verifyToken, checkOwnership("Polis"), deletePolis);
 
-router.post("/payment", verifyToken, createPembayaran);
-router.post("payment/perpanjangan", verifyToken ,perpanjangPolis);
-router.get("/payment", verifyToken, checkAdmin(), getAllPembayaran);
-router.get("/payment/user", verifyToken, getPembayaranByUser);
-router.get("/payment/:id", verifyToken, checkOwnership("Pembayaran"), scanPembayaran);
+// --- PEMBAYARAN ---
+router.post("/payment", verifyToken, createPembayaran); // User mengajukan pembayaran
+router.post("/payment/perpanjangan", verifyToken, perpanjangPolis); // User mengajukan perpanjangan
+router.get("/payment", verifyToken, checkAdmin(), getAllPembayaran); // Admin melihat list (Mendukung ?search=)
+router.get("/payment/user", verifyToken, getPembayaranByUser); // User melihat history
+
+// Endpoint Konfirmasi (Pengganti Scan QR)
+router.put("/payment/:id/confirm", verifyToken, checkAdmin(), confirmPembayaran); 
+
 router.delete("/payment/:id", verifyToken, deletePembayaran);
 
+// --- KLAIM ---
 router.post("/klaim", verifyToken, checkOwnership("Klaim"), createKlaim);
-router.get("/klaim", verifyToken, checkAdmin(), getAllKlaim);
+router.get("/klaim", verifyToken, checkAdmin(), getAllKlaim); // Mendukung ?search=
 router.get("/klaim/:id", verifyToken, checkOwnership("Klaim"), getKlaimById);
-router.get("/klaim/user", verifyToken, checkOwnership("Klaim"), getKlaimByUser);
+router.get("/klaim/user", verifyToken, getKlaimByUser);
 router.put("/klaim/:id", verifyToken, checkAdmin(), updateKlaim);
 router.delete("/klaim/:id", verifyToken, checkOwnership("Polis"), deleteKlaim);
 

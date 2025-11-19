@@ -98,33 +98,46 @@ export const createPolis = async (req, res) => {
 
 export const getAllPolis = async (req, res) => {
   try {
-    const { userName } = req.query;
+    // Menggunakan 'search' untuk mencari berdasarkan Nama User
+    const { search } = req.query;
 
-    let polis;
-
-    if (userName) {
-      polis = await Polis.find()
-        .populate({
-          path: "userId",
-          select: "name email",
-          match: { name: { $regex: userName, $options: "i" } },
-        })
-        .populate("productId", "name tipe");
-
-      polis = polis.filter((p) => p.userId !== null).slice(0, 20);
-
-      if (polis.length === 0) {
-        return res.status(404).json({ message: "Tidak ada polis dengan nama user tersebut." });
-      }
-
-      return res.status(200).json(polis);
+    let query = {};
+    
+    // Jika ada search, kita coba cari polis berdasarkan policyNumber dulu
+    // (Opsional: Jika ingin search nama user saja, bagian ini bisa di-skip, tapi ini lebih lengkap)
+    if (search) {
+       query = { policyNumber: { $regex: search, $options: "i" } };
     }
 
-    const data = await Polis.find()
+    // 1. Coba cari berdasarkan nomor polis langsung
+    let polis = await Polis.find(query)
       .populate("userId", "name email")
       .populate("productId", "name tipe");
 
-    res.status(200).json(data);
+    // 2. Jika hasil dari query policyNumber kosong DAN ada parameter search,
+    // berarti user mungkin mencari Nama User. Kita gunakan teknik filter via populate.
+    if (search && polis.length === 0) {
+        polis = await Polis.find()
+        .populate({
+            path: "userId",
+            select: "name email",
+            match: { name: { $regex: search, $options: "i" } }, // Filter di level user
+        })
+        .populate("productId", "name tipe");
+
+        // Filter hasil populate yang userId-nya null (karena tidak match namanya)
+        polis = polis.filter((p) => p.userId !== null);
+    }
+
+    // Batasi hasil agar tidak terlalu berat (pagination manual sederhana)
+    polis = polis.slice(0, 20);
+
+    if (polis.length === 0) {
+      return res.status(200).json([]); // Return kosong jika tidak ada
+    }
+
+    return res.status(200).json(polis);
+    
   } catch (err) {
     console.error("Error fetching polis:", err.message);
     res.status(500).json({ message: "Terjadi kesalahan saat mengambil data polis." });
@@ -146,8 +159,9 @@ export const getPolisById = async (req, res) => {
 
 export const getPolisByUser = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
 
+    console.log(userId)
     const polis = await Polis.find({ userId })
       .populate("productId")
       .sort({ createdAt: -1 });

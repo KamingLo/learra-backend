@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const pembayaranSchema = new mongoose.Schema({
   policyId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Policy",
+    ref: "Polis", // <--- PERBAIKAN: Ubah dari "Policy" ke "Polis"
     required: true,
   },
   amount: {
@@ -15,10 +15,16 @@ const pembayaranSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  type: { // Tambahan untuk membedakan pembayaran awal/perpanjangan
+    type: String,
+    enum: ["pembayaran_awal", "perpanjangan"],
+    default: "pembayaran_awal"
+  },
   status: {
     type: String,
-    enum: ["menunggu", "berhasil", "gagal"],
-    default: "menunggu",
+    // Tambahkan status 'menunggu_konfirmasi' agar sesuai controller
+    enum: ["menunggu_konfirmasi", "berhasil", "gagal"], 
+    default: "menunggu_konfirmasi",
   },
 }, {timestamps: true}
 );

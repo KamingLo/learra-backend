@@ -8,7 +8,7 @@ const polisSchema = new mongoose.Schema({
   },
   productId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
+    ref: "Produk", // <--- WAJIB "Produk" (Sesuai nama di produkModel.js)
     required: true,
   },
   policyNumber: {

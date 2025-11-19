@@ -45,13 +45,14 @@ export const createUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
+    // Menggunakan query parameter umum 'search'
     const { search } = req.query;
 
     const query = {};
 
     if (search) {
       query.$or = [
-        { nama: { $regex: search, $options: "i" } },
+        { name: { $regex: search, $options: "i" } },  // Perbaikan: 'nama' menjadi 'name'
         { email: { $regex: search, $options: "i" } },
       ];
     }

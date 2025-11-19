@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const produkSchema = new mongoose.Schema({
-  name: {
+  namaProduk: { // UBAH dari 'name' jadi 'namaProduk' agar cocok dengan controller search query
     type: String,
     required: true,
     trim: true,
@@ -19,7 +19,8 @@ const produkSchema = new mongoose.Schema({
   tipe: {
     type: String,
     required: true,
-    enum: ["jiwa", "kesehatan", "pendidikan"],
+    // TAMBAHKAN "kendaraan"
+    enum: ["jiwa", "kesehatan", "pendidikan", "kendaraan"], 
   },
 }, {timestamps: true}
 );

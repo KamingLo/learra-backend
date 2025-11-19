@@ -32,17 +32,17 @@ export const createKlaim = async (req, res) => {
 
 export const getAllKlaim = async (req, res) => {
   try {
-    const { userName } = req.query;
+    const { search } = req.query;
     let klaim;
 
-    if (userName) {
+    if (search) {
       klaim = await Klaim.find()
         .populate({
           path: "polisId",
           populate: {
             path: "userId",
             select: "name email",
-            match: { name: { $regex: userName, $options: "i" } }, // cari user by name
+            match: { name: { $regex: search, $options: "i" } }, // Menggunakan search
           },
         });
 
@@ -52,9 +52,7 @@ export const getAllKlaim = async (req, res) => {
       ).slice(0, 20);
 
       if (klaim.length === 0) {
-        return res.status(404).json({
-          message: "Tidak ada klaim dengan nama user tersebut.",
-        });
+        return res.status(200).json([]); // Return kosong bukan error 404
       }
 
       return res.status(200).json(klaim);
