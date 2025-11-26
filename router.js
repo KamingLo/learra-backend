@@ -61,7 +61,7 @@ router.use(apiKeyAuth);
 // --- USERS ---
 router.get("/users", getUsers); // Mendukung ?search=
 router.get("/users/:id", checkAdmin(),getUserById);
-router.get("/users/getUser",verifyToken, checkOwnership("User"), getUserProfile )
+router.get("/users/profile",verifyToken, checkOwnership("User"), getUserProfile )
 router.put("/users/:id", verifyToken, checkOwnership("User"), updateUser);
 router.delete("/users/:id", verifyToken, checkOwnership("User"), deleteUser);
 
