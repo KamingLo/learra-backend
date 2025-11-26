@@ -11,32 +11,42 @@ export const createProduk = async (req, res) => {
 };
 
 export const getAllProduk = async (req, res) => {
-  try {
-    // Menggunakan 'search' untuk mencari di Nama Produk ATAU Tipe Produk
-    const { search } = req.query;
+    try {
+        // Menggunakan 'search' untuk mencari di Nama Produk ATAU Tipe Produk
+        // Menambahkan parameter 'limit' untuk membatasi jumlah hasil
+        const { search, limit } = req.query;
 
-    const query = {};
+        const query = {};
 
-    if (search) {
-      query.$or = [
-        { namaProduk: { $regex: search, $options: "i" } },
-        { tipe: { $regex: search, $options: "i" } }
-      ];
+        if (search) {
+            query.$or = [
+                { namaProduk: { $regex: search, $options: "i" } },
+                { tipe: { $regex: search, $options: "i" } }
+            ];
+        }
+
+        let q = Produk.find(query);
+
+        if (limit !== undefined) {
+            const lim = parseInt(limit, 10);
+            if (isNaN(lim) || lim <= 0) {
+                return res.status(400).json({ message: "Parameter limit harus berupa angka positif" });
+            }
+            q = q.limit(lim);
+        }
+
+        const produk = await q;
+
+        if (produk.length === 0) {
+            // Kita return 200 dengan array kosong agar frontend tidak error
+            return res.status(200).json([]);
+        }
+
+        res.status(200).json(produk);
+    } catch (error) {
+        console.error("Error fetching produk:", error.message);
+        res.status(500).json({ message: "Terjadi kesalahan saat mengambil data produk." });
     }
-
-    const produk = await Produk.find(query);
-
-    if (produk.length === 0) {
-      // Kita return 200 dengan array kosong agar frontend tidak error, atau 404 jika preferensi logic Anda begitu.
-      // Disini saya kembalikan array kosong status 200 agar lebih umum.
-      return res.status(200).json([]); 
-    }
-
-    res.status(200).json(produk);
-  } catch (error) {
-    console.error("Error fetching produk:", error.message);
-    res.status(500).json({ message: "Terjadi kesalahan saat mengambil data produk." });
-  }
 };
 
 export const getProdukById = async (req, res) => {

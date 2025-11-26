@@ -43,6 +43,27 @@ export const createUser = async (req, res) => {
   }
 };
 
+export const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId; // Dari JWT middleware
+
+    const user = await User.findById(userId)
+      .select("-password -nomorIdentitas");
+
+    if (!user) {
+      return res.status(404).json({ message: "User tidak ditemukan" });
+    }
+
+    res.status(200).json({
+      message: "Data user yang sedang login",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 export const getUsers = async (req, res) => {
   try {
     // Menggunakan query parameter umum 'search'

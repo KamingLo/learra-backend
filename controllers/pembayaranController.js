@@ -95,40 +95,60 @@ export const getAllPembayaran = async (req, res) => {
   try {
     const { search } = req.query;
 
+    // Urutan prioritas status
+    const statusOrder = {
+      menunggu_konfirmasi: 0,
+      gagal: 1,
+      berhasil: 2,
+    };
+
     let pembayaran;
 
     if (search) {
-      // Logika pencarian: Cari user dengan nama yang cocok
       pembayaran = await Pembayaran.find()
         .populate({
           path: "policyId",
           populate: {
             path: "userId",
             select: "name email",
-            match: { name: { $regex: search, $options: "i" } }, // Filter nama user
+            match: { name: { $regex: search, $options: "i" } },
           },
         })
         .sort({ createdAt: -1 });
 
-      // Filter data yang policyId / userId-nya null karena match di atas
+      // Buang yang tidak match user
       pembayaran = pembayaran.filter(
-        (p) => p.policyId && p.policyId.userId !== null
-      ).slice(0, 20);
+        (p) => p.policyId && p.policyId.userId
+      );
 
-      if (pembayaran.length === 0) {
-        return res.status(200).json([]);
-      }
+      // SORT BARU, sesuai urutan enum
+      pembayaran = pembayaran.sort((a, b) => {
+        return (
+          statusOrder[a.status] - statusOrder[b.status] ||
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      });
 
-      return res.status(200).json(pembayaran);
+      return res.status(200).json(pembayaran.slice(0, 20));
     }
 
-    // Jika tidak ada search, ambil semua
-    const data = await Pembayaran.find().populate({
-      path: "policyId",
-      populate: { path: "userId", select: "name email" },
-    }).sort({ createdAt: -1 });
+    // Jika tidak search
+    pembayaran = await Pembayaran.find()
+      .populate({
+        path: "policyId",
+        populate: { path: "userId", select: "name email" },
+      })
+      .sort({ createdAt: -1 });
 
-    res.status(200).json(data);
+    // SORT SESUAI STATUS
+    pembayaran = pembayaran.sort((a, b) => {
+      return (
+        statusOrder[a.status] - statusOrder[b.status] ||
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+    });
+
+    res.status(200).json(pembayaran);
   } catch (error) {
     console.error("Error fetching pembayaran:", error.message);
     res

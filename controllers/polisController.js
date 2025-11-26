@@ -98,49 +98,53 @@ export const createPolis = async (req, res) => {
 
 export const getAllPolis = async (req, res) => {
   try {
-    // Menggunakan 'search' untuk mencari berdasarkan Nama User
-    const { search } = req.query;
+    const { search, limit = 20 } = req.query;
 
     let query = {};
-    
-    // Jika ada search, kita coba cari polis berdasarkan policyNumber dulu
-    // (Opsional: Jika ingin search nama user saja, bagian ini bisa di-skip, tapi ini lebih lengkap)
+
+    // Jika search, coba dulu cari berdasarkan policyNumber
     if (search) {
-       query = { policyNumber: { $regex: search, $options: "i" } };
+      query = { policyNumber: { $regex: search, $options: "i" } };
     }
 
-    // 1. Coba cari berdasarkan nomor polis langsung
     let polis = await Polis.find(query)
       .populate("userId", "name email")
       .populate("productId", "name tipe");
 
-    // 2. Jika hasil dari query policyNumber kosong DAN ada parameter search,
-    // berarti user mungkin mencari Nama User. Kita gunakan teknik filter via populate.
+    // Jika tidak ketemu nomor polis, cari berdasarkan nama user
     if (search && polis.length === 0) {
-        polis = await Polis.find()
+      polis = await Polis.find()
         .populate({
-            path: "userId",
-            select: "name email",
-            match: { name: { $regex: search, $options: "i" } }, // Filter di level user
+          path: "userId",
+          select: "name email",
+          match: { name: { $regex: search, $options: "i" } },
         })
         .populate("productId", "name tipe");
 
-        // Filter hasil populate yang userId-nya null (karena tidak match namanya)
-        polis = polis.filter((p) => p.userId !== null);
+      // Buang yang userId null karena tidak match
+      polis = polis.filter((p) => p.userId);
     }
 
-    // Batasi hasil agar tidak terlalu berat (pagination manual sederhana)
-    polis = polis.slice(0, 20);
+    // Urutan status: inaktif dulu
+    const statusOrder = {
+      inaktif: 0,
+      aktif: 1,
+    };
 
-    if (polis.length === 0) {
-      return res.status(200).json([]); // Return kosong jika tidak ada
-    }
+    polis = polis.sort((a, b) => {
+      return statusOrder[a.status] - statusOrder[b.status];
+    });
 
-    return res.status(200).json(polis);
-    
+    // Limit dari query, default 20
+    const limited = polis.slice(0, parseInt(limit));
+
+    return res.status(200).json(limited);
+
   } catch (err) {
     console.error("Error fetching polis:", err.message);
-    res.status(500).json({ message: "Terjadi kesalahan saat mengambil data polis." });
+    res.status(500).json({
+      message: "Terjadi kesalahan saat mengambil data polis."
+    });
   }
 };
 
