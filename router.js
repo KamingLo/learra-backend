@@ -58,7 +58,7 @@ const router = express.Router();
 router.use(apiKeyAuth);
 
 // --- USERS ---
-router.get("/users", verifyToken, checkAdmin(), getUsers); // Mendukung ?search=
+router.get("/users", verifyToken, getUsers); // Mendukung ?search=
 router.get("/users/:id", verifyToken, checkAdmin(),getUserById);
 router.get("/users/profile", verifyToken, getUserProfile)
 router.put("/users/:id", verifyToken, checkOwnership("User"), updateUser);
