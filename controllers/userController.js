@@ -48,7 +48,7 @@ export const getUserProfile = async (req, res) => {
     const userId = req.user.userId; // Dari JWT middleware
 
     const user = await User.findById(userId)
-      .select("-password -nomorIdentitas");
+      .select("-password -role");
 
     if (!user) {
       return res.status(404).json({ message: "User tidak ditemukan" });
