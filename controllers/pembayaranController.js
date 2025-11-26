@@ -93,9 +93,8 @@ export const confirmPembayaran = async (req, res) => {
 
 export const getAllPembayaran = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, limit = 20 } = req.query;
 
-    // Urutan prioritas status
     const statusOrder = {
       menunggu_konfirmasi: 0,
       gagal: 1,
@@ -116,12 +115,10 @@ export const getAllPembayaran = async (req, res) => {
         })
         .sort({ createdAt: -1 });
 
-      // Buang yang tidak match user
       pembayaran = pembayaran.filter(
         (p) => p.policyId && p.policyId.userId
       );
 
-      // SORT BARU, sesuai urutan enum
       pembayaran = pembayaran.sort((a, b) => {
         return (
           statusOrder[a.status] - statusOrder[b.status] ||
@@ -129,10 +126,12 @@ export const getAllPembayaran = async (req, res) => {
         );
       });
 
-      return res.status(200).json(pembayaran.slice(0, 20));
+      return res.status(200).json(
+        pembayaran.slice(0, parseInt(limit))
+      );
     }
 
-    // Jika tidak search
+    // tanpa search
     pembayaran = await Pembayaran.find()
       .populate({
         path: "policyId",
@@ -140,7 +139,6 @@ export const getAllPembayaran = async (req, res) => {
       })
       .sort({ createdAt: -1 });
 
-    // SORT SESUAI STATUS
     pembayaran = pembayaran.sort((a, b) => {
       return (
         statusOrder[a.status] - statusOrder[b.status] ||
@@ -148,14 +146,18 @@ export const getAllPembayaran = async (req, res) => {
       );
     });
 
-    res.status(200).json(pembayaran);
+    return res.status(200).json(
+      pembayaran.slice(0, parseInt(limit))
+    );
+
   } catch (error) {
     console.error("Error fetching pembayaran:", error.message);
-    res
-      .status(500)
-      .json({ message: "Terjadi kesalahan saat mengambil data pembayaran." });
+    res.status(500).json({
+      message: "Terjadi kesalahan saat mengambil data pembayaran.",
+    });
   }
 };
+
 
 export const getPembayaranByUser = async (req, res) => {
   try {

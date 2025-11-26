@@ -55,12 +55,11 @@ import {
 
 const router = express.Router();
 
-// Middleware Global untuk API Key
 router.use(apiKeyAuth);
 
 // --- USERS ---
-router.get("/users", getUsers); // Mendukung ?search=
-router.get("/users/:id", checkAdmin(),getUserById);
+router.get("/users", verifyToken, checkAdmin(), getUsers); // Mendukung ?search=
+router.get("/users/:id", verifyToken, checkAdmin(),getUserById);
 router.get("/users/profile",verifyToken, checkOwnership("User"), getUserProfile )
 router.put("/users/:id", verifyToken, checkOwnership("User"), updateUser);
 router.delete("/users/:id", verifyToken, checkOwnership("User"), deleteUser);

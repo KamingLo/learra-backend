@@ -32,9 +32,10 @@ export const createKlaim = async (req, res) => {
 
 export const getAllKlaim = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, limit = 20 } = req.query;
     let klaim;
 
+    // Jika ada search → cari berdasarkan nama user
     if (search) {
       klaim = await Klaim.find()
         .populate({
@@ -42,28 +43,38 @@ export const getAllKlaim = async (req, res) => {
           populate: {
             path: "userId",
             select: "name email",
-            match: { name: { $regex: search, $options: "i" } }, // Menggunakan search
+            match: { name: { $regex: search, $options: "i" } },
           },
         });
 
-      // filter hasil yang user-nya tidak cocok (karena match gagal → userId = null)
+      // Buang hasil yang userId = null (match gagal)
       klaim = klaim.filter(
-        (k) => k.polisId && k.polisId.userId !== null
-      ).slice(0, 20);
-
-      if (klaim.length === 0) {
-        return res.status(200).json([]); // Return kosong bukan error 404
-      }
-
-      return res.status(200).json(klaim);
+        (k) => k.polisId && k.polisId.userId
+      );
+    } else {
+      // Tanpa search → ambil semua
+      klaim = await Klaim.find().populate({
+        path: "polisId",
+        populate: { path: "userId", select: "name email" },
+      });
     }
 
-    const data = await Klaim.find().populate({
-      path: "polisId",
-      populate: { path: "userId", select: "name email" },
+    // Urutan status: menunggu → ditolak → disetujui
+    const statusOrder = {
+      menunggu: 0,
+      ditolak: 1,
+      disetujui: 2,
+    };
+
+    klaim = klaim.sort((a, b) => {
+      return statusOrder[a.status] - statusOrder[b.status];
     });
 
-    res.status(200).json(data);
+    // Limit dari query
+    const limitedData = klaim.slice(0, parseInt(limit));
+
+    return res.status(200).json(limitedData);
+
   } catch (error) {
     console.error("Error fetching klaim:", error.message);
     res.status(500).json({ message: "Terjadi kesalahan saat mengambil data klaim." });
