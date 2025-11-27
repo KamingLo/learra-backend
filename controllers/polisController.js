@@ -7,7 +7,7 @@ function generatePolicyNumber() {
 
 export const createPolis = async (req, res) => {
   try {
-    const { userId, productId, endingDate, detail } = req.body;
+    const { userId, productId, detail } = req.body;  // endingDate dihapus dari req
 
     const product = await Produk.findById(productId);
     if (!product) return res.status(404).json({ message: "Produk tidak ditemukan" });
@@ -21,6 +21,7 @@ export const createPolis = async (req, res) => {
     let premium = premiDasar;
     let detailData = {};
 
+    // === LOGIKA PERHITUNGAN PREMI ===
     switch (product.tipe) {
       case "kesehatan": {
         const { diabetes = 0, merokok = 0, hipertensi = 0 } = detail.kesehatan || {};
@@ -80,6 +81,10 @@ export const createPolis = async (req, res) => {
       default:
         return res.status(400).json({ message: "Tipe produk tidak dikenali" });
     }
+
+    // === HITUNG ENDING DATE SECARA OTOMATIS (1 BULAN) ===
+    const endingDate = new Date();
+    endingDate.setMonth(endingDate.getMonth() + 1);
 
     const polis = await Polis.create({
       userId,
