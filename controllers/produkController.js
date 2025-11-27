@@ -25,7 +25,7 @@ export const getAllProduk = async (req, res) => {
             ];
         }
 
-        let q = Produk.find(query);
+        let q = Produk.find(query).sort({createdAt: -1});
 
         if (limit !== undefined) {
             const lim = parseInt(limit, 10);

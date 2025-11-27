@@ -45,7 +45,7 @@ export const getAllKlaim = async (req, res) => {
             select: "name email",
             match: { name: { $regex: search, $options: "i" } },
           },
-        });
+        }).sort({createdAt: -1});
 
       // Buang hasil yang userId = null (match gagal)
       klaim = klaim.filter(

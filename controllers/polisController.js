@@ -109,7 +109,8 @@ export const getAllPolis = async (req, res) => {
 
     let polis = await Polis.find(query)
       .populate("userId", "name email")
-      .populate("productId", "name tipe");
+      .populate("productId", "name tipe")
+      .sort({createdAt: -1});
 
     // Jika tidak ketemu nomor polis, cari berdasarkan nama user
     if (search && polis.length === 0) {
