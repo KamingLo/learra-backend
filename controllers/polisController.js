@@ -156,7 +156,7 @@ export const getPolisById = async (req, res) => {
   try {
     const polis = await Polis.findById(req.params.id)
       .populate("userId", "name email")
-      .populate("productId", "name tipe");
+      .populate("productId", "namaProduk tipe");
 
     if (!polis) return res.status(404).json({ message: "Polis tidak ditemukan" });
     res.json(polis);

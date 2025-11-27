@@ -10,27 +10,17 @@ export const getOwnerIdFromResource = async (modelName, id) => {
     }
 
     case "Polis": {
-      const polis = await Polis.findById(id).populate("userId", "_id");
+      const polis = await Polis.findById(id);
       return polis?.userId?._id;
     }
 
     case "Pembayaran": {
-      const pembayaran = await Pembayaran.findById(id)
-        .populate({
-          path: "polis",
-          populate: { path: "userId", select: "_id" }
-        });
-
+      const pembayaran = await Pembayaran.findById(id);
       return pembayaran?.polis?.userId?._id;
     }
 
     case "Klaim": {
-      const klaim = await Klaim.findById(id)
-        .populate({
-          path: "polis",
-          populate: { path: "userId", select: "_id" }
-        });
-
+      const klaim = await Klaim.findById(id);
       return klaim?.polis?.userId?._id;
     }
 
