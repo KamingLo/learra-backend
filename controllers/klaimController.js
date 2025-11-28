@@ -112,7 +112,7 @@ export const getKlaimByUser = async (req, res) => {
       {
         status: 1,
         namaRekening: 1,
-        nomorRekening: 1,
+        noRekening: 1,
         jumlahKlaim: 1,
         tanggalKlaim: 1,
         deskripsi: 1,
