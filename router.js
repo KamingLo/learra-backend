@@ -60,9 +60,12 @@ router.use(apiKeyAuth);
 // --- USERS ---
 router.get("/users", verifyToken, getUsers); // Mendukung ?search=
 router.get("/users/:id", verifyToken, checkAdmin(),getUserById);
-router.get("/user/profile", verifyToken, getUserProfile)
 router.put("/users/:id", verifyToken, checkOwnership("User"), updateUser);
 router.delete("/users/:id", verifyToken, checkOwnership("User"), deleteUser);
+router.get("/user/profile", verifyToken, getUserProfile)
+router.get("/user/polis", verifyToken, getPolisByUser);
+router.get("/user/payment", verifyToken, getPembayaranByUser); // User melihat history
+router.get("/user/klaim", verifyToken, getKlaimByUser);
 
 // --- AUTH ---
 router.post("/auth/register", createUser);
@@ -80,7 +83,6 @@ router.delete("/produk/:id", verifyToken, checkAdmin(), deleteProduk); // Note: 
 
 // --- POLIS ---
 router.post("/polis", verifyToken, createPolis);
-router.get("/polisuser", verifyToken, getPolisByUser);
 router.get("/polis", verifyToken, checkAdmin(), getAllPolis); // Mendukung ?search=
 router.get("/polis/:id", verifyToken, checkOwnership("Polis"), getPolisById);
 router.put("/polis/:id", verifyToken, checkAdmin(), updatePolis);
@@ -90,7 +92,6 @@ router.delete("/polis/:id", verifyToken, checkOwnership("Polis"), deletePolis);
 router.post("/payment", verifyToken, createPembayaran); // User mengajukan pembayaran
 router.post("/payment/perpanjangan", verifyToken, perpanjangPolis); // User mengajukan perpanjangan
 router.get("/payment", verifyToken, checkAdmin(), getAllPembayaran); // Admin melihat list (Mendukung ?search=)
-router.get("/paymentuser", verifyToken, getPembayaranByUser); // User melihat history
 router.put("/payment/:id/confirm", verifyToken, checkAdmin(), confirmPembayaran); 
 router.delete("/payment/:id", verifyToken, deletePembayaran);
 
@@ -98,7 +99,6 @@ router.delete("/payment/:id", verifyToken, deletePembayaran);
 router.post("/klaim", verifyToken, checkOwnership("Klaim"), createKlaim);
 router.get("/klaim", verifyToken, checkAdmin(), getAllKlaim); // Mendukung ?search=
 router.get("/klaim/:id", verifyToken, checkOwnership("Klaim"), getKlaimById);
-router.get("/klaimuser", verifyToken, getKlaimByUser);
 router.put("/klaim/:id", verifyToken, checkAdmin(), updateKlaim);
 router.delete("/klaim/:id", verifyToken, checkOwnership("Polis"), deleteKlaim);
 
