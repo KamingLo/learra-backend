@@ -108,6 +108,7 @@ export const getKlaimByUser = async (req, res) => {
   try {
     const userId = req.user.userId;
 
+    // Cari polis user
     const polisUser = await Polis.find({ userId }).select("_id");
     const polisIds = polisUser.map(p => p._id);
 
@@ -118,12 +119,19 @@ export const getKlaimByUser = async (req, res) => {
       });
     }
 
-    const klaim = await Klaim.find({ polisId: { $in: polisIds } })
-      .populate({
-        path: "polisId",
-        populate: { path: "productId" },
-      })
-      .sort({ createdAt: -1 });
+    // Ambil klaim user dengan field terbatas (tanpa populate polis)
+    const klaim = await Klaim.find(
+      { polisId: { $in: polisIds } },
+      {
+        status: 1,
+        namaRekening: 1,
+        nomorRekening: 1,
+        jumlahKlaim: 1,
+        tanggalKlaim: 1,
+        deskripsi: 1,
+        createdAt: 1
+      }
+    ).sort({ createdAt: -1 });
 
     res.status(200).json({
       message: "Daftar klaim user",
@@ -134,6 +142,7 @@ export const getKlaimByUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 export const updateKlaim = async (req, res) => {
