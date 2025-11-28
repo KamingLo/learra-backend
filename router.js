@@ -96,10 +96,10 @@ router.put("/payment/:id/confirm", verifyToken, checkAdmin(), confirmPembayaran)
 router.delete("/payment/:id", verifyToken, deletePembayaran);
 
 // --- KLAIM ---
-router.post("/klaim", verifyToken, checkOwnership("Klaim"), createKlaim);
+router.post("/klaim", verifyToken, createKlaim);
 router.get("/klaim", verifyToken, checkAdmin(), getAllKlaim); // Mendukung ?search=
 router.get("/klaim/:id", verifyToken, checkOwnership("Klaim"), getKlaimById);
 router.put("/klaim/:id", verifyToken, checkAdmin(), updateKlaim);
-router.delete("/klaim/:id", verifyToken, checkOwnership("Polis"), deleteKlaim);
+router.delete("/klaim/:id", verifyToken, checkOwnership("Klaim"), deleteKlaim);
 
 export default router;
