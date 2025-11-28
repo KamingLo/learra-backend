@@ -47,30 +47,29 @@ export const loginUser = async (req, res) => {
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
+
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "Email not registered" });
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 menit
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     await PasswordReset.findOneAndUpdate(
       { email },
-      { code, expiresAt, verified: false },
+      { code, expiresAt, verified: false, resetToken: null },
       { upsert: true, new: true }
     );
 
+    // kirim email
     await transporter.sendMail({
       from: "lokaming86@gmail.com",
       to: email,
       subject: "Password Reset Code",
-      html: passwordTemplate({
-        userName: user.name,
-        code: code,
-      }),
+      html: passwordTemplate({ userName: user.name, code }),
     });
 
-    return res.json({ message: "Verification code sent to email." });
+    return res.json({ message: "Verification code sent." });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -78,18 +77,26 @@ export const forgotPassword = async (req, res) => {
 };
 
 export const verifyCode = async (req, res) => {
-  const { email, code } = req.body;
+  const { code } = req.body; // ← tidak pakai email
+
   try {
-    const record = await PasswordReset.findOne({ email, code });
+    const record = await PasswordReset.findOne({ code });
     if (!record) return res.status(400).json({ message: "Invalid code" });
-    if (record.expiresAt < new Date()) return res.status(400).json({ message: "Code expired" });
+
+    if (record.expiresAt < new Date())
+      return res.status(400).json({ message: "Code expired" });
+
     record.verified = true;
 
     const resetToken = new mongoose.Types.ObjectId().toString();
     record.resetToken = resetToken;
+
     await record.save();
 
-    return res.json({ message: "Code verified", record});
+    return res.json({
+      message: "Code verified.",
+      resetToken   // ← ini yang dipakai user untuk reset password
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -97,20 +104,28 @@ export const verifyCode = async (req, res) => {
 };
 
 export const resetPassword = async (req, res) => {
-  const { email, resetToken, newPassword, confirmNewPassword } = req.body;
+  const { resetToken, newPassword, confirmNewPassword } = req.body;
+
   try {
-    const record = await PasswordReset.findOne({ email, resetToken, verified: true });
+    const record = await PasswordReset.findOne({
+      resetToken,
+      verified: true
+    });
 
-    if (!record) return res.status(400).json({ message: "Invalid or expired token" });
+    if (!record)
+      return res.status(400).json({ message: "Invalid or expired token" });
 
-    if (newPassword!== confirmNewPassword) {
-      return res.status(400).json({ message: "Password dan konfirmasi tidak cocok" });
-    }
+    if (newPassword !== confirmNewPassword)
+      return res.status(400).json({ message: "Password and confirmation do not match" });
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await User.findOneAndUpdate({ email }, { password: hashedPassword });
 
-    await PasswordReset.deleteOne({ email });
+    await User.findOneAndUpdate(
+      { email: record.email },     // email diambil dari record
+      { password: hashedPassword }
+    );
+
+    await PasswordReset.deleteOne({ email: record.email });
 
     return res.json({ message: "Password successfully changed." });
   } catch (err) {
