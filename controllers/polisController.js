@@ -214,23 +214,96 @@ export const updatePolis = async (req, res) => {
     const polis = await Polis.findById(req.params.id);
     if (!polis) return res.status(404).json({ message: "Polis tidak ditemukan" });
 
-    const updates = req.body;
+    const product = await Produk.findById(polis.productId);
+    if (!product) return res.status(404).json({ message: "Produk tidak ditemukan" });
 
-    if (updates.status && updates.status === "dibatalkan" && updates.statusReason) {
-      polis.status = "dibatalkan";
-      polis.statusReason = updates.statusReason;
+    const premiDasar = product.premiDasar;
+
+    // gabungkan detail lama dan baru
+    const mergedDetail = {
+      ...polis.detail,
+      ...req.body.detail
+    };
+
+    let premium = premiDasar;
+
+    // ===== PERHITUNGAN ULANG SAMA PERSIS DENGAN CREATE =====
+    switch (product.tipe) {
+      case "kesehatan": {
+        const { diabetes = 0, merokok = 0, hipertensi = 0 } = mergedDetail.kesehatan || {};
+
+        premium =
+          premiDasar +
+          diabetes * (premiDasar * 0.3) +
+          merokok * (premiDasar * 0.2) +
+          hipertensi * (premiDasar * 0.4);
+
+        mergedDetail.kesehatan = { diabetes, merokok, hipertensi };
+        break;
+      }
+
+      case "jiwa": {
+        const { jumlahTanggungan = 0, statusPernikahan = "belum" } = mergedDetail.jiwa || {};
+        const menikah = statusPernikahan === "menikah" ? 1 : 0;
+
+        premium =
+          premiDasar +
+          jumlahTanggungan / 3 +
+          menikah * (jumlahTanggungan / 12);
+
+        mergedDetail.jiwa = { jumlahTanggungan, statusPernikahan };
+        break;
+      }
+
+      case "kendaraan": {
+        const {
+          umurKendaraan,
+          hargaKendaraan = 0,
+          merek,
+          jenisKendaraan,
+          nomorKendaraan,
+          nomorRangka,
+          nomorMesin,
+          namaPemilik,
+        } = mergedDetail.kendaraan || {};
+
+        const umurDalamTahun = hitungUmurKendaraan(umurKendaraan);
+
+        premium =
+          premiDasar +
+          (umurDalamTahun * premiDasar) / 12 +
+          (hargaKendaraan * 0.02) / 12;
+
+        mergedDetail.kendaraan = {
+          umurKendaraan,
+          umurDalamTahun,
+          hargaKendaraan,
+          merek,
+          jenisKendaraan,
+          nomorKendaraan,
+          nomorRangka,
+          nomorMesin,
+          namaPemilik,
+        };
+        break;
+      }
+
+      default:
+        return res.status(400).json({ message: "Tipe produk tidak dikenali" });
     }
 
-    if (updates.endingDate) polis.endingDate = updates.endingDate;
-    if (updates.premium) polis.premium = updates.premium;
-    if (updates.detail) polis.detail = { ...polis.detail, ...updates.detail };
+    polis.detail = mergedDetail;
+    polis.premium = premium;
+    if (req.body.endingDate) polis.endingDate = req.body.endingDate;
 
     const updated = await polis.save();
     res.json(updated);
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 export const deletePolis = async (req, res) => {
   try {

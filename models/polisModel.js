@@ -36,7 +36,7 @@ const polisSchema = new mongoose.Schema({
     },
   status: {
     type: String,
-    enum: ["inaktif", "aktif", "dibatalkan"],
+    enum: ["inaktif", "aktif"],
     default: "inaktif",
   },
   detail: {
