@@ -27,8 +27,13 @@ const polisSchema = new mongoose.Schema({
   },
   endingDate: {
     type: Date,
-    required: true,
-  },
+    default: () => {
+        const d = new Date();
+        d.setMonth(d.getMonth() + 1); // tambah 1 bulan
+        return d;
+    },
+        required: true,
+    },
   status: {
     type: String,
     enum: ["inaktif", "aktif", "dibatalkan"],
