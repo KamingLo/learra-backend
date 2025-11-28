@@ -5,6 +5,25 @@ function generatePolicyNumber() {
   return `POLIS-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
 
+const hitungUmurKendaraan = (tanggal) => {
+  if (!tanggal) return 0;
+
+  const today = new Date();
+  const tgl = new Date(tanggal);
+
+  let umur = today.getFullYear() - tgl.getFullYear();
+
+  // Cek apakah ulang tahun kendaraan sudah lewat
+  const belumLewat =
+    today.getMonth() < tgl.getMonth() ||
+    (today.getMonth() === tgl.getMonth() && today.getDate() < tgl.getDate());
+
+  if (belumLewat) umur -= 1;
+
+  return umur < 0 ? 0 : umur;
+};
+
+
 export const createPolis = async (req, res) => {
   try {
     const { userId, productId, detail } = req.body;
@@ -48,34 +67,38 @@ export const createPolis = async (req, res) => {
       }
 
       case "kendaraan": {
-        const {
-          umurKendaraan = 0,
-          hargaKendaraan = 0,
-          merek,
-          jenisKendaraan,
-          nomorKendaraan,
-          nomorRangka,
-          nomorMesin,
-          namaPemilik,
-        } = detail.kendaraan || {};
+            const {
+                umurKendaraan, // ini berupa Date dari req.body
+                hargaKendaraan = 0,
+                merek,
+                jenisKendaraan,
+                nomorKendaraan,
+                nomorRangka,
+                nomorMesin,
+                namaPemilik,
+            } = detail.kendaraan || {};
 
-        premium =
-          premiDasar +
-          (umurKendaraan * premiDasar) / 12 +
-          (hargaKendaraan * 0.02) / 12;
+            const umurDalamTahun = hitungUmurKendaraan(umurKendaraan);
 
-        detailData.kendaraan = {
-          umurKendaraan,
-          hargaKendaraan,
-          merek,
-          jenisKendaraan,
-          nomorKendaraan,
-          nomorRangka,
-          nomorMesin,
-          namaPemilik,
-        };
-        break;
-      }
+            premium =
+                premiDasar +
+                (umurDalamTahun * premiDasar) / 12 +
+                (hargaKendaraan * 0.02) / 12;
+
+            detailData.kendaraan = {
+                umurKendaraan,     // tetap simpan tanggal aslinya
+                umurDalamTahun,    // kalau mau ikut simpan
+                hargaKendaraan,
+                merek,
+                jenisKendaraan,
+                nomorKendaraan,
+                nomorRangka,
+                nomorMesin,
+                namaPemilik,
+            };
+            break;
+        }
+
 
       default:
         return res.status(400).json({ message: "Tipe produk tidak dikenali" });
