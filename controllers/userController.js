@@ -78,7 +78,7 @@ export const getUsers = async (req, res) => {
       ];
     }
 
-    const users = await User.find(query).select("name email phone address rentangGaji").limit(20);
+    const users = await User.find(query).limit(20);
 
     res.status(200).json(users);
   } catch (error) {
@@ -89,7 +89,7 @@ export const getUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password -nomorIdentitas");
+    const user = await User.findById(req.params.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
     res.status(200).json(user);
   } catch (err) {
