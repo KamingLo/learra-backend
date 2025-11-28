@@ -106,19 +106,35 @@ export const getKlaimById = async (req, res) => {
 
 export const getKlaimByUser = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const klaim = await Klaim.find()
+    const userId = req.user.userId;
+
+    const polisUser = await Polis.find({ userId }).select("_id");
+    const polisIds = polisUser.map(p => p._id);
+
+    if (polisIds.length === 0) {
+      return res.status(200).json({
+        message: "User belum memiliki klaim",
+        klaim: [],
+      });
+    }
+
+    const klaim = await Klaim.find({ polisId: { $in: polisIds } })
       .populate({
         path: "polisId",
-        match: { userId },
+        populate: { path: "productId" },
       })
-      .then((result) => result.filter((k) => k.polisId));
+      .sort({ createdAt: -1 });
 
-    res.json(klaim);
+    res.status(200).json({
+      message: "Daftar klaim user",
+      klaim,
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const updateKlaim = async (req, res) => {
   try {
