@@ -91,19 +91,6 @@ export const getAllKlaim = async (req, res) => {
   }
 };
 
-
-export const getKlaimById = async (req, res) => {
-  try {
-    const klaim = await Klaim.findById(req.params.id).populate("polisId");
-    if (!klaim) {
-      return res.status(404).json({ message: "Klaim tidak ditemukan" });
-    }
-    res.json(klaim);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 export const getKlaimByUser = async (req, res) => {
   try {
     const userId = req.user.userId;

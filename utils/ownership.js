@@ -15,13 +15,19 @@ export const getOwnerIdFromResource = async (modelName, id) => {
     }
 
     case "Pembayaran": {
-      const pembayaran = await Pembayaran.findById(id);
-      return pembayaran?.polis?.userId?._id;
+      const pembayaran = await Pembayaran.findById(id).select("polisId");
+      if (!pembayaran) return null;
+
+      const polis = await Polis.findById(pembayaran.polisId).select("userId");
+      return polis?.userId;
     }
 
     case "Klaim": {
-      const klaim = await Klaim.findById(id);
-      return klaim?.polis?.userId?._id;
+      const klaim = await Klaim.findById(id).select("polisId");
+      if (!klaim) return null;
+
+      const polis = await Polis.findById(klaim.polisId).select("userId");
+      return polis?.userId;
     }
 
     default:

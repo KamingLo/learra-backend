@@ -219,7 +219,6 @@ export const updatePolis = async (req, res) => {
 
     const premiDasar = product.premiDasar;
 
-    // gabungkan detail lama dan baru
     const mergedDetail = {
       ...polis.detail,
       ...req.body.detail
@@ -227,7 +226,6 @@ export const updatePolis = async (req, res) => {
 
     let premium = premiDasar;
 
-    // ===== PERHITUNGAN ULANG SAMA PERSIS DENGAN CREATE =====
     switch (product.tipe) {
       case "kesehatan": {
         const { diabetes = 0, merokok = 0, hipertensi = 0 } = mergedDetail.kesehatan || {};

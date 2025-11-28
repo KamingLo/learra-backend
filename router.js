@@ -93,12 +93,11 @@ router.post("/payment", verifyToken, createPembayaran); // User mengajukan pemba
 router.post("/payment/perpanjangan", verifyToken, perpanjangPolis); // User mengajukan perpanjangan
 router.get("/payment", verifyToken, checkAdmin(), getAllPembayaran); // Admin melihat list (Mendukung ?search=)
 router.put("/payment/:id/confirm", verifyToken, checkAdmin(), confirmPembayaran); 
-router.delete("/payment/:id", verifyToken, deletePembayaran);
+router.delete("/payment/:id", verifyToken, checkOwnership("Pembayaran"),deletePembayaran);
 
 // --- KLAIM ---
 router.post("/klaim", verifyToken, createKlaim);
 router.get("/klaim", verifyToken, checkAdmin(), getAllKlaim); // Mendukung ?search=
-router.get("/klaim/:id", verifyToken, checkOwnership("Klaim"), getKlaimById);
 router.put("/klaim/:id", verifyToken, checkAdmin(), updateKlaim);
 router.delete("/klaim/:id", verifyToken, checkOwnership("Klaim"), deleteKlaim);
 
