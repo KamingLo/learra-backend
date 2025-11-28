@@ -1,9 +1,12 @@
 import { Polis } from "../models/polisModel.js";
 import { Produk } from "../models/produkModel.js";
+import crypto from "crypto";
 
 function generatePolicyNumber() {
-  return `POLIS-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  const randomPart = crypto.randomBytes(5).toString("hex").toUpperCase(); 
+  return `POLIS-${randomPart}`;
 }
+
 
 const hitungUmurKendaraan = (tanggal) => {
   if (!tanggal) return 0;
