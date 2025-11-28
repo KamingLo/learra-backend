@@ -81,15 +81,11 @@ export const createPolis = async (req, res) => {
         return res.status(400).json({ message: "Tipe produk tidak dikenali" });
     }
 
-    const endingDate = new Date();
-    endingDate.setMonth(endingDate.getMonth() + 1);
-
     const polis = await Polis.create({
       userId,
       productId,
       policyNumber,
       premium,
-      endingDate,
       detail: detailData,
     });
 
