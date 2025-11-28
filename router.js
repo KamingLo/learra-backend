@@ -47,7 +47,6 @@ import {
 import {
   createKlaim,
   getAllKlaim,
-  getKlaimById,
   getKlaimByUser,
   updateKlaim,
   deleteKlaim
