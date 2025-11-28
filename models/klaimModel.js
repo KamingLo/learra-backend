@@ -6,6 +6,14 @@ const klaimSchema = new mongoose.Schema({
         ref: "Polis",
         required: true,
     },
+    namaRekening: {
+        type: String,
+        required: true,   // user wajib isi waktu claim
+    },
+    noRekening: {
+        type: String,
+        required: true,
+    },
     jumlahKlaim: {
         type: Number,
         required: true,

@@ -3,7 +3,13 @@ import { Polis } from "../models/polisModel.js";
 
 export const createKlaim = async (req, res) => {
   try {
-    const { polisId, jumlahKlaim, deskripsi } = req.body;
+    const { polisId, jumlahKlaim, deskripsi, namaRekening, noRekening } = req.body;
+
+    if (!namaRekening || !noRekening) {
+      return res.status(400).json({
+        message: "Nama rekening dan nomor rekening wajib diisi.",
+      });
+    }
 
     const polis = await Polis.findById(polisId);
     if (!polis) {
@@ -21,14 +27,18 @@ export const createKlaim = async (req, res) => {
       polisId,
       jumlahKlaim,
       deskripsi,
+      namaRekening,
+      noRekening,
     });
 
     const savedKlaim = await klaim.save();
     res.status(201).json(savedKlaim);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const getAllKlaim = async (req, res) => {
   try {
