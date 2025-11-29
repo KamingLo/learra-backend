@@ -106,7 +106,7 @@ export const getKlaimByUser = async (req, res) => {
       });
     }
 
-    // Ambil klaim user dengan field terbatas (tanpa populate polis)
+    // Ambil klaim + populate polis + product
     const klaim = await Klaim.find(
       { polisId: { $in: polisIds } },
       {
@@ -118,19 +118,26 @@ export const getKlaimByUser = async (req, res) => {
         deskripsi: 1,
         createdAt: 1
       }
-    ).sort({ createdAt: -1 });
+    )
+      .populate({
+        path: "polisId",
+        select: "policyNumber productId",
+        populate: {
+          path: "productId",
+          select: "namaProduk"
+        }
+      })
+      .sort({ createdAt: -1 });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Daftar klaim user",
       klaim,
     });
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
-
-
 
 export const updateKlaim = async (req, res) => {
   try {
