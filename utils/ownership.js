@@ -15,10 +15,10 @@ export const getOwnerIdFromResource = async (modelName, id) => {
     }
 
     case "Pembayaran": {
-      const pembayaran = await Pembayaran.findById(id).select("polisId");
+      const pembayaran = await Pembayaran.findById(id).select("policyId");
       if (!pembayaran) return null;
 
-      const polis = await Polis.findById(pembayaran.polisId).select("userId");
+      const polis = await Polis.findById(pembayaran.policyId).select("userId");
       return polis?.userId;
     }
 
